@@ -1,17 +1,31 @@
 #!/usr/bin/env bash
 
-# This build script bases on these tools:
+# This build script bases on tools below:
 #
-# - /sdk-path/build-tools/28.0.3
+# Android SDK:
+#
+# - /android-sdk-path/build-tools/28.0.3
 #    - aapt2
 #    - d8
 #    - zipalign
-# - sdk/platforms/android-28
+#
+# - /android-sdk-path/platforms/android-28
 #    - android.jar
-# - /jdk1.8.0_171.jdk/Contents/Home/bin/javac
+#
+# - /android-sdk-path/tools/lib
+#   - sdklib (ApkBuilderMain & ApkBuilder)
+#   - common
+#   - some other libs that provide the dependencies for sdklib and common
+#
+# JDK:
+#
+# - /jdk-path/Contents/Home/bin/
+#    - java
 #    - javac
 #    - jarsigner
-# - some other *nix common tools (regular shell commands)
+#
+# *nix shell commands
+#
 #    - echo
 #    - which
 #    - rm
@@ -45,23 +59,27 @@
     ### compile
     aapt2 compile -o ${compileTargetArchive} --dir ${appResDir}
     unzip -q ${compileTargetArchive} -d ${compileTargetArchiveUnzip}
+    echo -e "aapt2 intermediates \r\n  - compiled resources zip archive : ${compileTargetArchive} \r\n  - unzip resources from above     : ${compileTargetArchiveUnzip} "
     ### link
     linkInputs=$(find ${compileTargetArchiveUnzip} -type f | tr '\r\n' ' ')
     aapt2 link -o ${linkTarget} -I ${androidJar} --manifest ${manifest} --java ${r} ${linkInputs}
     echo -e "aapt2 generated \r\n  - R.java      : ${r} \r\n  - res package : ${linkTarget}"
 
 
-## 3. build java classes
+## 3. compile java classes
+    echo 'compile classes'
     classesOutput=${buildDir}/classes
     mainClassesInput=./app/src/main/java/me/xx2bab/manualbuilding/*.java
     rDotJava=${r}/me/xx2bab/manualbuilding/R.java
     mkdir ${classesOutput}
     ## .java -> .classes
     javac -bootclasspath ${androidJar} -d ${classesOutput} ${mainClassesInput} ${rDotJava}
+    echo "javac generated ${classesOutput}"
     ## .classes -> .dex
     dexOutput=${buildDir}/dex
     mkdir ${dexOutput}
     d8 ${classesOutput}/me/xx2bab/manualbuilding/*.class --lib ${androidJar} --output ${dexOutput}
+    echo "d8 generated ${classesOutput}"
 
 
 ## 4. build apk
@@ -71,8 +89,12 @@
     zipAlignedSignedApk=${buildDir}/manual-build-aligned-signed.apk
     ## build apk
     java -cp $(echo ${tools}/*.jar | tr ' ' ':') com.android.sdklib.build.ApkBuilderMain ${unsignedApk} -u -v -z ${linkTarget} -f ${dexOutput}/classes.dex
+    echo "building apk by ApkBuilderMain"
     ## signature
-    jarsigner -verbose -keystore ./debug.keystore -storepass android -keypass android -signedjar ${signedApk} ${unsignedApk} androiddebugkey
+    jarsigner -keystore ./debug.keystore -storepass android -keypass android -signedjar ${signedApk} ${unsignedApk} androiddebugkey
+    echo "signed apk"
     ## zipalign
     zaTool=$(dirname $(which aapt2))/zipalign
-    ${zaTool} -v 4 ${signedApk} ${zipAlignedSignedApk}
+    ${zaTool} 4 ${signedApk} ${zipAlignedSignedApk}
+    echo "zipalign"
+    echo "Build Completed, check the final apk at ${zipAlignedSignedApk}"
