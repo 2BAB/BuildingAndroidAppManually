@@ -15,6 +15,8 @@ To be honest, the answer will be a little complicated. But here, we don't consid
 
 If you find any issues on your environment, please check the env `path` first. PRs and issues are quite welcome.
 
+![screenshot](./app-screenshot.png)
+
 ## Dependencies
 
 ```bash
