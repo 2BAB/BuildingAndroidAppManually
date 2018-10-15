@@ -6,6 +6,7 @@ To be honest, the answer will be a little complicated. But here, we don't consid
 
 ## Notice
 
+0. We use latest build tools such as Aapt2, D8 dex compiler, will keep tracking on Google's steps. 
 1. We are only allowed to use the Android SDK and JDK.
 2. The bash script only tested on *nix system, refer the testing list below:
 
