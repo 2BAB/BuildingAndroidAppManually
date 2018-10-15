@@ -30,9 +30,9 @@ If you find any issues on your environment, please check the env `path` first. P
 #    - android.jar
 #
 # - /android-sdk-path/tools/lib
-#   - sdklib (ApkBuilderMain & ApkBuilder)
-#   - common
-#   - some other libs that provide the dependencies for sdklib and common
+#    - sdklib (ApkBuilderMain & ApkBuilder)
+#    - common
+#    - some other libs that provide the dependencies for sdklib and common
 #
 # JDK:
 #
