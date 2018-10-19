@@ -84,17 +84,17 @@
 
 ## 4. build apk
     tools=${sdk}/tools/lib
-    unsignedApk=${buildDir}/manual-build-unsigned.apk
-    signedApk=${buildDir}/manual-build-signed.apk
+    originApk=${buildDir}/manual-build-unaligned-unsigned.apk
+    alignedApk=${buildDir}/manual-build-aligned-unsigned.apk
     zipAlignedSignedApk=${buildDir}/manual-build-aligned-signed.apk
     ## build apk
-    java -cp $(echo ${tools}/*.jar | tr ' ' ':') com.android.sdklib.build.ApkBuilderMain ${unsignedApk} -u -v -z ${linkTarget} -f ${dexOutput}/classes.dex
-    echo "building apk by ApkBuilderMain"
-    ## signature
-    jarsigner -keystore ./debug.keystore -storepass android -keypass android -signedjar ${signedApk} ${unsignedApk} androiddebugkey
-    echo "signed apk"
+    java -cp $(echo ${tools}/*.jar | tr ' ' ':') com.android.sdklib.build.ApkBuilderMain ${originApk} -u -v -z ${linkTarget} -f ${dexOutput}/classes.dex
+    echo "built apk by ApkBuilderMain"
     ## zipalign
     zaTool=$(dirname $(which aapt2))/zipalign
-    ${zaTool} 4 ${signedApk} ${zipAlignedSignedApk}
-    echo "zipalign"
-    echo "Build Completed, check the final apk at ${zipAlignedSignedApk}"
+    ${zaTool} 4 ${originApk} ${alignedApk}
+    echo "aligned apk"
+    ## signature
+    apksigner sign --ks ./debug.keystore --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android --out ${zipAlignedSignedApk} ${alignedApk}
+    echo "signed apk"
+    echo "build completed, check the final apk at ${zipAlignedSignedApk}"
