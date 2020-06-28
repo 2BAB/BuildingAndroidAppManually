@@ -1,3 +1,5 @@
+**The repo is deprecated.**
+
 # BuildingAndroidAppManually
 
 Just imagine if you don't have Gradle, Android Gradle Plugin, even the Ant building tools, **HOW WILL YOU BUILD AN ANDROID APP?**
